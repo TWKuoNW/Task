@@ -70,7 +70,6 @@ while(cap.isOpened()):
     ret, frame = cap.read()  # 讀取一幀
     if(not ret):
         break  # 如果無法讀取，跳出循環
-
     frame = cv2.resize(frame, (1366, 768), interpolation=cv2.INTER_LINEAR)  # 調整畫面的大小
     img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)  # 將幀轉換成 RGB
     results = model([img], size=640)  # 使用模型進行預測
@@ -87,7 +86,7 @@ while(cap.isOpened()):
 
     for *xyxy, conf, cls_id in results:  # 迭代檢測到的物件
         # print(f"*xyxy: {xyxy}, conf: {conf:.2f}, cls_id: {cls_id}")
-        if(cls_id == 0 and conf >= 0.30):  # 如果檢測到的是人（cls_id為0）
+        if(cls_id == 0):  # 如果檢測到的是人（cls_id為0）
             x1, y1, x2, y2 = map(int, xyxy)  # 獲取物件的座標
             centroid = ((x1 + x2) // 2, y2)  # 計算物件的中心點
             cv2.putText(frame, f'{(conf*100):.2f}%', (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1) # 在物件上顯示可信度
@@ -134,8 +133,10 @@ while(cap.isOpened()):
     cv2.putText(frame, f'out: {person_out_count}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
     cv2.putText(frame, f'in - out: {person_in_count - person_out_count}', (10, 80), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
     cv2.putText(frame, f'fps: {actual_fps:.2f}', (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+
     cv2.imshow('Video', frame)  # 顯示處理後的影像幀
     out.write(frame) # 寫入影像
+
     print(frame)
 
     if cv2.waitKey(1) == ord('q'):  # 如果按下 'q' 鍵，則退出
